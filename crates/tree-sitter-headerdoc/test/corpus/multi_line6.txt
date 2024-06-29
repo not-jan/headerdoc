@@ -1,0 +1,13 @@
+==================
+Multi Line 6
+==================
+
+/*!
+ *  @see Contacts.framework and CNContact.identifier
+ */
+
+
+---
+
+(source_file
+  (multi_line))

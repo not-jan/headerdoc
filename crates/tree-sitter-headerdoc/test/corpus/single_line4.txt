@@ -1,0 +1,13 @@
+==================
+Single line 4
+==================
+/// The app's current shuffle type.
+/// ABC
+/// @abstract This is a short description.
+/// @discussion abcdefgh
+
+---
+
+(source_file
+  (single_line)
+  (single_line))

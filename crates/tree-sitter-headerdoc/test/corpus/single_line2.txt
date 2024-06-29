@@ -1,0 +1,11 @@
+==================
+Single line 2
+==================
+/// The app's current shuffle type.
+/// ABC
+
+---
+
+(source_file
+  (single_line)
+  (single_line))

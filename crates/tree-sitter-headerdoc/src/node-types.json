@@ -1,0 +1,128 @@
+[
+  {
+    "type": "block_tag",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "tag_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "tag_content",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "document",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "block_tag",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "inline_tag",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "inline_tag_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "inline_tag_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "raw_tag_content",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "tag_content",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "text",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "inline_tag",
+          "named": true
+        },
+        {
+          "type": "raw_tag_content",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "*/",
+    "named": false
+  },
+  {
+    "type": "inline_tag_name",
+    "named": true
+  },
+  {
+    "type": "inline_tag_value",
+    "named": true
+  },
+  {
+    "type": "tag_name",
+    "named": true
+  }
+]
