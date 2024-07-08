@@ -38,7 +38,34 @@
           "named": true
         },
         {
+          "type": "flag_tag",
+          "named": true
+        },
+        {
+          "type": "inline_tag",
+          "named": true
+        },
+        {
+          "type": "raw_tag_content",
+          "named": true
+        },
+        {
           "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "flag_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "tag_name",
           "named": true
         }
       ]
@@ -63,7 +90,7 @@
         "required": true,
         "types": [
           {
-            "type": "inline_tag_value",
+            "type": "raw_tag_content",
             "named": true
           }
         ]
@@ -77,21 +104,6 @@
   },
   {
     "type": "tag_content",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "text",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "text",
     "named": true,
     "fields": {},
     "children": {
@@ -110,15 +122,22 @@
     }
   },
   {
-    "type": "*/",
-    "named": false
+    "type": "text",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "raw_tag_content",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "inline_tag_name",
-    "named": true
-  },
-  {
-    "type": "inline_tag_value",
     "named": true
   },
   {

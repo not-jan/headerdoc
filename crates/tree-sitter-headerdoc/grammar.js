@@ -19,15 +19,13 @@ module.exports = grammar({
         token("///"),
 
     ],
+
     externals: $ => [
         $._tag_content,
         $._simple_line,
         $._multiline_begin,
         $._simple_multiline_begin,
         $._new_line,
-    ],
-    conflicts: $ => [
-
     ],
     rules: {
         document: $ => repeat1(choice(
@@ -38,12 +36,16 @@ module.exports = grammar({
         )),
         _singleline_begin: _ => token(seq('///')),
         _simple_singleline_begin: _ => token(seq('//')),
-        _multiline_end: $ => choice( '*/'),
+        _multiline_end: $ => token.immediate('*/'),
         _multiline: $ => seq(
             $._multiline_begin,
 
-            optional($.text),
-            repeat($.block_tag),
+            optional($._text),
+            repeat(choice(
+                    $.flag_tag,
+                    $.block_tag
+                )
+            ),
 
             $._multiline_end,
         ),
@@ -58,31 +60,39 @@ module.exports = grammar({
         ),
         _singleline: $ => seq(
             $._singleline_begin,
-            $.text
+            optional($._text),
+            repeat($.block_tag),
         ),
 
         block_tag: $ => seq(
             field("name", $.tag_name),
             field("value", $.tag_content)
         ),
-        text: $ => prec.left(repeat1(
+        _text: $ => prec.left(repeat1(
             choice(
                 $.raw_tag_content,
                 $.inline_tag,
             )
         )),
         raw_tag_content: $ => $._tag_content,
+        flag_tag: $ => $.tag_name,
         tag_name: $ => token.immediate(
-            seq("@",
+            seq(
+                "@",
                 choice(
                     "abstract",
                     "discussion",
                     "return",
-                    "see"
+                    "see",
+                    "property",
+                    "brief",
+                    "remark",
+                    "note",
+                    "result"
                 )
             )
         ),
-        tag_content: $ => repeat1($.text),
+        tag_content: $ => repeat1($._text),
         inline_tag_name: $ => token.immediate(seq(
             "@",
             choice(
@@ -90,12 +100,13 @@ module.exports = grammar({
                 "a",
                 "em",
                 "b",
+                "link"
             ),
         )),
         inline_tag: $ => seq(
             field("name", $.inline_tag_name),
             /\s/,
-            field("value", $.inline_tag_value)
+            field("value", alias($.inline_tag_value, $.raw_tag_content))
         ),
         inline_tag_value: $ => token.immediate(/\S+/),
 

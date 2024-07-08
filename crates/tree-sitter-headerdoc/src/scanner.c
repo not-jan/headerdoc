@@ -1,8 +1,10 @@
+#include <wctype.h>
+#include <stdio.h>
 #include "tree_sitter/parser.h"
 #include "tree_sitter/alloc.h"
 #include "tree_sitter/array.h"
-#include <wctype.h>
-#include <stdio.h>
+
+// #define SCANNER_DEBUG
 
 enum TokenType {
   TAG_CONTENT,
@@ -11,11 +13,6 @@ enum TokenType {
   SIMPLE_MULTILINE_BEGIN,
   NEW_LINE
 };
-
-struct Scanner {
-
-};
-
 
 static bool scan_tag_content(TSLexer* lexer) {
   bool did_capture = false;
@@ -71,6 +68,12 @@ static bool scan_tag_content(TSLexer* lexer) {
 
     lexer->advance(lexer, false);
   }
+
+  if(did_capture && lexer->eof(lexer)) {
+      lexer->result_symbol = TAG_CONTENT;
+      return true;
+  }
+
   return false;
 }
 
@@ -79,21 +82,21 @@ void *tree_sitter_headerdoc_external_scanner_create(void) {
   return NULL;
 }
 
-void tree_sitter_headerdoc_external_scanner_destroy(void *payload) {
-  (payload);
+void tree_sitter_headerdoc_external_scanner_destroy(void * UNUSED(payload)) {
+
 }
 
 unsigned tree_sitter_headerdoc_external_scanner_serialize(
-  void *payload,
-  char *buffer
+  void *UNUSED(payload),
+  char *UNUSED(buffer)
 ) {
   return 0;
 }
 
 void tree_sitter_headerdoc_external_scanner_deserialize(
-  void *payload,
-  const char *buffer,
-  unsigned length
+  void * UNUSED(payload),
+  const char * UNUSED(buffer),
+  unsigned UNUSED(length)
 ) {
   // ...
 }
@@ -203,7 +206,7 @@ static bool scan_new_line(TSLexer *lexer) {
 }
 
 static bool my_tree_sitter_headerdoc_external_scanner_scan(
-  void *payload,
+  void * UNUSED(payload),
   TSLexer *lexer,
   const bool *valid_symbols
 ) {
@@ -224,6 +227,7 @@ static bool my_tree_sitter_headerdoc_external_scanner_scan(
   return false;
 }
 
+#ifdef SCANNER_DEBUG
 static const char* token_to_str(enum TokenType itoken) {
     const char* token = 0;
 
@@ -255,23 +259,27 @@ static const char* token_to_str(enum TokenType itoken) {
     }
     return token;
 }
+#endif
 
 bool tree_sitter_headerdoc_external_scanner_scan(
   void *payload,
   TSLexer *lexer,
   const bool *valid_symbols
 ) {
+#ifdef SCANNER_DEBUG
   puts("Expected tokens:");
   for(int i = TAG_CONTENT; i <= NEW_LINE; i++) {
     if(valid_symbols[i]) {
       printf("- %s\n", token_to_str(i));
     }
   }
+#endif
   bool result = my_tree_sitter_headerdoc_external_scanner_scan(payload, lexer, valid_symbols);
-
+#ifdef SCANNER_DEBUG
   if (result) {
     const char* token = token_to_str(lexer->result_symbol);
     printf("Recognized token: %s\n", token);
   }
+#endif
   return result;
 }
