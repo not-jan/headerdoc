@@ -1,59 +1,58 @@
-use std::fs::FileType;
-use std::sync::{Arc, Mutex};
-use tree_sitter::{LogType, Parser, Tree};
-use anyhow::Result;
-use log::{error, info};
 use crate::nodes::{FromNode, HeaderDoc};
-use crate::rustdoc::RustDoc;
+use anyhow::Result;
+use log::{error, info, warn};
+use std::io::ErrorKind;
+use std::path::PathBuf;
+use tree_sitter::Parser;
 
 mod nodes;
 mod rustdoc;
 
-
 fn main() -> Result<()> {
     env_logger::init();
     let mut parser = Parser::new();
-    parser.set_language(&tree_sitter_headerdoc::language()).expect("Error loading HeaderDoc grammar");
-
+    parser
+        .set_language(&tree_sitter_headerdoc::language())
+        .expect("Error loading HeaderDoc grammar");
 
     parser.set_logger(Some(Box::new(move |ty, msg| {
         info!("[{ty:?}] {msg}");
     })));
 
-
     let count = std::fs::read_dir("./crates/tree-sitter-headerdoc/assets")?.count();
-    let files = std::fs::read_dir("./crates/tree-sitter-headerdoc/assets")?;
 
-    for (i, f) in files.enumerate() {
+    for i in 0..count {
         parser.reset();
         parser.set_timeout_micros(1000);
 
-        if let Ok(entry) = f {
-            if !entry.file_type().map(|ty| ty.is_file()).unwrap_or(false) {
+        let path = PathBuf::from(format!("./crates/tree-sitter-headerdoc/assets/{i}.comment"));
+
+        let data = match std::fs::read(&path) {
+            Ok(data) => data,
+            Err(err) if err.kind() == ErrorKind::NotFound => {
+                warn!("could not find path {path:?}");
                 continue;
             }
-            let data = std::fs::read(entry.path())?;
+            Err(err) => Err(err)?,
+        };
 
-
-            match parser.parse(&data, None) {
-                None => {
-                    error!("Failed to parse: {:?}!", entry.path());
-                }
-                Some(tree) => {
-                    let root = tree.root_node();
-                    match HeaderDoc::from_node(root, &data) {
-                        Ok(_) => {}
-                        Err(e) => {
-                            error!("Failed to convert syntax tree to HeaderDoc in {:?}: {e}", entry.path());
-                            break;
-                        }
+        match parser.parse(&data, None) {
+            None => {
+                error!("Failed to parse: {path:?}!");
+            }
+            Some(tree) => {
+                let root = tree.root_node();
+                match HeaderDoc::from_node(root, &data) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Failed to convert syntax tree to HeaderDoc in {path:?}: {e}");
+                        break;
                     }
-                    print!("\r{i}/{count}");
                 }
+                print!("\r{i}/{count}");
             }
         }
     }
-
 
     Ok(())
 }
@@ -64,14 +63,15 @@ mod test {
 
     fn make_parser() -> Parser {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_headerdoc::language()).expect("Error loading HeaderDoc grammar");
+        parser
+            .set_language(&tree_sitter_headerdoc::language())
+            .expect("Error loading HeaderDoc grammar");
         parser
     }
 
     #[test]
     fn test_empty_multi() {
         let mut parser = make_parser();
-
 
         parser.parse("/**/", None).unwrap();
     }
